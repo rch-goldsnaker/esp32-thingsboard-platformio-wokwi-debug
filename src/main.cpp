@@ -61,7 +61,12 @@ void requestTimedOut()
   Serial.println("Timeout: No response from ThingsBoard within 5 seconds.");
 }
 
-const Attribute_Request_Callback<MAX_ATTRIBUTES> attribute_client_request_callback(&processClientAttributes, REQUEST_TIMEOUT_MICROSECONDS, &requestTimedOut, CLIENT_ATTRIBUTES_LIST);
+const Attribute_Request_Callback<MAX_ATTRIBUTES> attribute_client_request_callback(
+  &processClientAttributes, 
+  REQUEST_TIMEOUT_MICROSECONDS, 
+  &requestTimedOut, 
+  CLIENT_ATTRIBUTES_LIST
+);
 
 void InitWiFi() 
 {
