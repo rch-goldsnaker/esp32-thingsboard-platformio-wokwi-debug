@@ -1,14 +1,15 @@
-# ESP32 ThingsBoard Client Attributes
+# ESP32 ThingsBoard Multi-Function Client
 
-This project demonstrates **Client Attributes** functionality with ESP32 and **ThingsBoard** IoT platform. The ESP32 controls an LED that maintains its state persistently using ThingsBoard client attributes, simulated in **Wokwi**.
+This project demonstrates multiple **ThingsBoard** functionalities with ESP32 using **3 different buttons** for various data transmission types. Each button triggers a different type of communication with ThingsBoard IoT platform, simulated in **Wokwi**.
 
 ## 🎯 Features
 
-- **LED Control**: Toggle LED with physical button
-- **Persistent State**: LED state is saved as client attribute in ThingsBoard
-- **State Recovery**: LED state is restored on device restart
-- **Simple Design**: Minimal code, maximum functionality
-- **Wokwi Simulation**: Complete hardware simulation with LED and button
+- **3-Button Interface**: Different buttons for different functionalities
+- **Telemetry Data**: Send sensor data (temperature, humidity) 
+- **Client Attributes**: Send device/network information
+- **RPC Requests**: Request server information with response handling
+- **Serial Feedback**: Detailed logging of all operations
+- **Wokwi Simulation**: Complete hardware simulation with 3 labeled buttons
 
 ## 📚 Dependencies and Libraries
 
@@ -44,8 +45,9 @@ constexpr const char LED_STATE_ATTR[] = "ledState";        // Client attribute n
 
 ### 3. Hardware Configuration
 ```cpp
-#define LED_PIN 2        // LED connected to GPIO 2
-#define BUTTON_PIN 0     // Button connected to GPIO 0
+#define BUTTON1_PIN 0    // Telemetry button - GPIO 0
+#define BUTTON2_PIN 4    // Client attributes button - GPIO 4  
+#define BUTTON3_PIN 5    // RPC client button - GPIO 5
 ```
 
 ## 🚀 Installation and Usage
@@ -72,32 +74,59 @@ cd esp32-thingsboard-platformio-wokwi-telemetry
 1. Open the project in Wokwi
 2. The `diagram.json` contains:
    - ESP32 DevKit C V4
-   - Red LED on GPIO 2
-   - Blue button on GPIO 0
+   - Blue button (Telemetry) on GPIO 0
+   - Green button (Attributes) on GPIO 4
+   - Orange button (RPC) on GPIO 5
 3. Run the simulation
-4. Monitor serial port for connection status
+4. Monitor serial port for connection status and button actions
 
 ## 🔧 How It Works
 
-### Client Attributes Flow
-1. **Connection**: ESP32 connects to WiFi and ThingsBoard
-2. **Request**: Automatically requests `ledState` client attribute
-3. **Restore**: If attribute exists, LED state is restored
-4. **Control**: Press button to toggle LED state
-5. **Save**: New LED state is sent as client attribute to ThingsBoard
+### Button Functions
+
+#### Button 1 (GPIO 0) - Telemetry Data 🌡️
+- **Function**: Sends telemetry data to ThingsBoard
+- **Data**: Random temperature (20-35°C) and humidity (40-80%)
+- **Feedback**: Serial monitor logging
+- **Use Case**: Sensor data reporting
+
+#### Button 2 (GPIO 4) - Client Attributes 📡
+- **Function**: Sends device/network attributes
+- **Data**: WiFi SSID, signal strength (RSSI), IP address, device status
+- **Feedback**: Serial monitor logging
+- **Use Case**: Device information and diagnostics
+
+#### Button 3 (GPIO 5) - RPC Client Request 🔄
+- **Function**: Sends RPC request to server
+- **Data**: Device ID, request type, timestamp, memory info, uptime
+- **Feedback**: Serial monitor logging with response details
+- **Use Case**: Server communication and command requests
 
 ### Hardware Components
-- **LED (GPIO 2)**: Visual indicator of current state
-- **Button (GPIO 0)**: Toggle control (with pull-up resistor)
-- **Serial Monitor**: Status messages and debugging
+- **3 Buttons**: Each with different colored labels and functions
+- **Serial Monitor**: Detailed logging of all operations and responses
 
 ## 📊 ThingsBoard Integration
 
-### Client Attributes
-- **ledState** (boolean): Stores LED on/off state persistently
+### Telemetry Data
+- **temperature** (float): Random sensor temperature readings
+- **humidity** (float): Random sensor humidity readings
+
+### Client Attributes  
+- **wifiSSID** (string): Connected WiFi network name
+- **wifiRSSI** (int): WiFi signal strength in dBm
+- **ipAddress** (string): Device IP address
+- **deviceStatus** (string): Current device status
+
+### RPC Requests
+- **Method**: "getServerInfo" - Request server information
+- **Parameters**: Device ID, request type, timestamp, memory info, uptime
+- **Response**: Handled by callback function with LED feedback
 
 ### Device Behavior
-- **First Connection**: Uses default state (LED OFF)
+- **Connection**: ESP32 connects to WiFi and ThingsBoard automatically
+- **Multi-Function**: Three different communication types in one device
+- **Serial Feedback**: Comprehensive logging for monitoring all operations
 - **Subsequent Connections**: Restores last saved state
 - **Button Press**: Toggles LED and saves new state
 - **State Persistence**: Survives device restarts and reconnections
