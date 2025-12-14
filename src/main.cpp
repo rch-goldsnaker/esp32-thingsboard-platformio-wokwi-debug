@@ -8,7 +8,7 @@ constexpr char WIFI_SSID[] = "Wokwi-GUEST";
 constexpr char WIFI_PASSWORD[] = "";
 
 // ThingsBoard Configuration
-constexpr char TOKEN[] = "ub5CTYRPERBpDGyTJrHh";
+constexpr char TOKEN[] = "vayTAK8kF0jjtlH67me0";
 constexpr char THINGSBOARD_SERVER[] = "thingsboard.cloud";
 constexpr uint16_t THINGSBOARD_PORT = 1883U;
 
