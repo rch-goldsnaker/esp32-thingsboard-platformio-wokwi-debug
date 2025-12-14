@@ -1,15 +1,15 @@
-# ESP32 ThingsBoard Multi-Function Client
+# ESP32 ThingsBoard Multi-Button Demo
 
 This project demonstrates multiple **ThingsBoard** functionalities with ESP32 using **3 different buttons** for various data transmission types. Each button triggers a different type of communication with ThingsBoard IoT platform, simulated in **Wokwi**.
 
 ## 🎯 Features
 
 - **3-Button Interface**: Different buttons for different functionalities
-- **Telemetry Data**: Send sensor data (temperature, humidity) 
-- **Client Attributes**: Send device/network information
-- **RPC Requests**: Request server information with response handling
+- **Telemetry Data**: Send random temperature readings (20.0-35.0°C)
+- **Client Attributes**: Send battery level information (10-100%)
+- **RPC Client Requests**: Make client-side RPC calls with response handling
 - **Serial Feedback**: Detailed logging of all operations
-- **Wokwi Simulation**: Complete hardware simulation with 3 labeled buttons
+- **Wokwi Simulation**: Complete hardware simulation with 3 buttons
 
 ## 📚 Dependencies and Libraries
 
@@ -25,7 +25,10 @@ lib_deps =
 ### System Libraries
 - `WiFi.h` - WiFi connectivity (ESP32)
 - `Arduino_MQTT_Client.h` - MQTT client for ThingsBoard
-- `Attribute_Request.h` - Client attributes management
+- `ThingsBoard.h` - Main ThingsBoard client library
+- `ArduinoJson.h` - JSON parsing and serialization
+- `Client_Side_RPC.h` - Client-side RPC functionality
+- `RPC_Request_Callback.h` - RPC callback management
 
 ## ⚙️ Configuration
 
@@ -37,10 +40,9 @@ constexpr char WIFI_PASSWORD[] = "";             // Password (empty for Wokwi)
 
 ### 2. ThingsBoard Configuration
 ```cpp
-constexpr char TOKEN[] = "xxxxxxxxxxxxxxxxxxxx";           // Device token (from ThingsBoard)
+constexpr char TOKEN[] = "xxxxxxxxxxxxxxxxxx";           // Device token (from ThingsBoard)
 constexpr char THINGSBOARD_SERVER[] = "thingsboard.cloud"; // ThingsBoard server
 constexpr uint16_t THINGSBOARD_PORT = 1883U;               // MQTT port
-constexpr const char LED_STATE_ATTR[] = "ledState";        // Client attribute name
 ```
 
 ### 3. Hardware Configuration
@@ -68,15 +70,15 @@ cd esp32-thingsboard-platformio-wokwi-telemetry
 1. Create a new device in ThingsBoard
 2. Copy the device **Access Token**
 3. Replace the `TOKEN` in `main.cpp`
-4. The device will automatically create the `ledState` client attribute
+4. The device will automatically create telemetry and attribute data when buttons are pressed
 
 ### 4. Wokwi Simulation
 1. Open the project in Wokwi
 2. The `diagram.json` contains:
    - ESP32 DevKit C V4
-   - Blue button (Telemetry) on GPIO 0
-   - Green button (Attributes) on GPIO 4
-   - Orange button (RPC) on GPIO 5
+   - Button 1 (Telemetry) on GPIO 0
+   - Button 2 (Attributes) on GPIO 4
+   - Button 3 (RPC) on GPIO 5
 3. Run the simulation
 4. Monitor serial port for connection status and button actions
 
@@ -86,57 +88,57 @@ cd esp32-thingsboard-platformio-wokwi-telemetry
 
 #### Button 1 (GPIO 0) - Telemetry Data 🌡️
 - **Function**: Sends telemetry data to ThingsBoard
-- **Data**: Random temperature (20-35°C) and humidity (40-80%)
-- **Feedback**: Serial monitor logging
+- **Data**: Random temperature readings between 20.0°C and 35.0°C
+- **Feedback**: Serial monitor logging with temperature value
 - **Use Case**: Sensor data reporting
 
-#### Button 2 (GPIO 4) - Client Attributes 📡
-- **Function**: Sends device/network attributes
-- **Data**: WiFi SSID, signal strength (RSSI), IP address, device status
-- **Feedback**: Serial monitor logging
-- **Use Case**: Device information and diagnostics
+#### Button 2 (GPIO 4) - Client Attributes 🔋
+- **Function**: Sends client attributes to ThingsBoard
+- **Data**: Random battery level between 10% and 100%
+- **Feedback**: Serial monitor logging with battery percentage
+- **Use Case**: Device status information
 
 #### Button 3 (GPIO 5) - RPC Client Request 🔄
-- **Function**: Sends RPC request to server
-- **Data**: Device ID, request type, timestamp, memory info, uptime
-- **Feedback**: Serial monitor logging with response details
-- **Use Case**: Server communication and command requests
+- **Function**: Makes client-side RPC call to server
+- **Method**: `getCurrentTime` - Request current time from server
+- **Timeout**: 10 seconds with timeout callback
+- **Feedback**: Serial monitor logging with server response or timeout message
+- **Use Case**: Client-side RPC communication and server interaction
 
 ### Hardware Components
-- **3 Buttons**: Each with different colored labels and functions
+- **3 Push Buttons**: GPIO 0, 4, and 5 with INPUT_PULLUP configuration
 - **Serial Monitor**: Detailed logging of all operations and responses
+- **ESP32 DevKit**: Main microcontroller with WiFi connectivity
 
 ## 📊 ThingsBoard Integration
 
 ### Telemetry Data
-- **temperature** (float): Random sensor temperature readings
-- **humidity** (float): Random sensor humidity readings
+- **temperature** (float): Random temperature readings between 20.0°C and 35.0°C
 
 ### Client Attributes  
-- **wifiSSID** (string): Connected WiFi network name
-- **wifiRSSI** (int): WiFi signal strength in dBm
-- **ipAddress** (string): Device IP address
-- **deviceStatus** (string): Current device status
+- **batteryLevel** (int): Random battery level percentage between 10% and 100%
 
-### RPC Requests
-- **Method**: "getServerInfo" - Request server information
-- **Parameters**: Device ID, request type, timestamp, memory info, uptime
-- **Response**: Handled by callback function with LED feedback
+### RPC Client Requests
+- **Method**: "getCurrentTime" - Request current server time
+- **Timeout**: 10 seconds with callback handling
+- **Response**: JSON response with server data or timeout notification
 
 ### Device Behavior
 - **Connection**: ESP32 connects to WiFi and ThingsBoard automatically
 - **Multi-Function**: Three different communication types in one device
 - **Serial Feedback**: Comprehensive logging for monitoring all operations
-- **Subsequent Connections**: Restores last saved state
-- **Button Press**: Toggles LED and saves new state
-- **State Persistence**: Survives device restarts and reconnections
+- **Button Handling**: Debounced button press detection with falling edge triggers
+- **Random Data**: Generates random sensor values for demonstration
+- **RPC Handling**: Client-side RPC with response callbacks and timeout management
 
 ## 🎮 Usage
 
-1. **Power On**: Device connects and restores last LED state
-2. **Press Button**: Toggle LED between ON/OFF
-3. **Check ThingsBoard**: View `ledState` client attribute updates
-4. **Restart Device**: LED returns to last saved state
+1. **Power On**: Device connects to WiFi and ThingsBoard automatically
+2. **Button 1**: Press to send random temperature telemetry data
+3. **Button 2**: Press to send random battery level as client attribute
+4. **Button 3**: Press to make RPC call requesting current server time
+5. **Monitor**: View all operations and responses in serial monitor
+6. **ThingsBoard**: Check telemetry, attributes, and RPC activity in ThingsBoard dashboard
 
 ## 📄 License
 
@@ -154,15 +156,18 @@ For questions or issues:
 
 ### Common Issues
 - **"Failed to connect to ThingsBoard"**: Check device token and internet connection
-- **"LED value not found on server"**: Normal for first-time connections
-- **"Timeout: No response from ThingsBoard"**: Network or server issues
+- **"Not connected to ThingsBoard"**: Device attempting to reconnect
+- **"RPC timeout"**: No response received from server within 10 seconds
+- **"Failed to send RPC call"**: RPC client communication error
 
 ### Serial Monitor Messages
-- `LED restored: ON/OFF` - State successfully recovered from ThingsBoard
-- `LED value not found on server` - Using default state (first connection)
-- `LED: ON/OFF` - Button pressed, new state sent to ThingsBoard
+- `Sending telemetry - Temperature: XX.X°C` - Temperature data sent
+- `Sending client attributes - Battery Level: XX%` - Battery level sent
+- `Making client-side RPC call: getCurrentTime` - RPC request initiated
+- `SERVER RESPONSE RECEIVED` - RPC response received successfully
+- `RPC timeout - no response from server` - RPC call timed out
 
 ---
 **Author**: Mirutec - Roger Chung  
-**Version**: 1.0 - Client Attributes  
-**Date**: November 2025
+**Version**: 2.0 - Multi-Button Demo with RPC  
+**Date**: December 2025
